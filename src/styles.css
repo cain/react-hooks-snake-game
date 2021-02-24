@@ -1,0 +1,22 @@
+.App {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+.square {
+  width: 15px;
+  height: 15px;
+  border-top: 1px solid rgba(255, 0, 0, 0.5);
+}
+
+.col {
+  border-right: 1px solid rgba(0, 25, 255, 0.5);
+}
+
+.board {
+  display: flex;
+}
+
+.snake {
+  background: black;
+}
