@@ -34,35 +34,39 @@ function useInterval(callback, delay) {
 function calculateSnakeBody(snakeHeadLocation, snakeSize) {
   console.log(snakeSize);
   return Array.from(Array(snakeSize)).map(
-    (v, i) => snakeHeadLocation[snakeHeadLocation.length - 2]
+    (v, i) => {
+      // console.log('test', (snakeHeadLocation.length - 1), (snakeSize - (i + 1)));
+      return snakeHeadLocation[(snakeHeadLocation.length - 1) - (snakeSize - (i + 1))]
+    }
   );
 }
+
+function test() {
+  // console.log('test1', calculateSnakeBody([[15, 15], [15, 14], [15, 13]], 2))
+}
+
+test();
 
 export default function App() {
   const [tickCount, setTickCount] = useState(0);
   const [snakeBody, setSnakeBody] = useState([]);
-  const [snakeSize, setSnakeSize] = useState(1);
-  const [snakeHeadLocation, setSnakeHeadLocation] = useState([]);
+  const [snakeSize, setSnakeSize] = useState(2);
+  const [snakeHeadLocation, setSnakeHeadLocation] = useState([[15, 15], [14, 15], [13, 15]]);
   const [snakeDirection, setSnakeDirection] = useState("left");
-  const [snakeLocation, setSnakeLocation] = useState([
-    BOARD.x - 1,
-    BOARD.y - 1
-  ]);
+  // const [snakeLocation, setSnakeLocation] = useState([[15, 15], [15, 14], [15, 13]]);
 
   function divs() {
     const snake = snakeBody;
     // console.log(snakeBody);
     const row = (rowIndex) =>
       Array.from(Array(BOARD.x)).map((v, squareIndex) => {
-        const isSnake = snakeBody.reduce(
-          (prev, curr) =>
-            curr && curr[0] === rowIndex && curr[1] === squareIndex,
-          false
-        );
+        // debugger;
+        const isSnake = snakeBody.findIndex((curr) => ((curr[0] === rowIndex) && (curr[1] === squareIndex)));
+        // console.log('coords', {rowIndex, squareIndex, snakeBody})
         return (
           <div
             key={"row" + squareIndex}
-            className={"square " + (isSnake ? "snake" : "")}
+            className={"square " + (isSnake > -1 ? "snake" : "")}
           ></div>
         );
       });
@@ -112,10 +116,11 @@ export default function App() {
   useInterval(() => {
     // tick();
     // return;
-    if (stopTick) return;
     setTickCount(tickCount + 1);
+    if (tickCount > 2) return;
+
     let newCordinates = [];
-    const [x, y] = snakeLocation;
+    const [x, y] = snakeHeadLocation[snakeHeadLocation.length - 1];
     // set snake location
     switch (snakeDirection) {
       case "left":
@@ -140,9 +145,10 @@ export default function App() {
     }
     // console.log(tickCount + "rendered");
 
-    setSnakeLocation(newCordinates);
+    // setSnakeLocation(newCordinates);
     setSnakeHeadLocation([...snakeHeadLocation, newCordinates]);
     setSnakeBody(calculateSnakeBody(snakeHeadLocation, snakeSize));
+    console.log(snakeBody)
     jsx = divs();
   }, 500);
   return (
