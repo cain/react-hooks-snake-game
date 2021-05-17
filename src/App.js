@@ -10,6 +10,7 @@ const SNAKE = {
   width: 2
 };
 
+
 // Taken from https://overreacted.io/making-setinterval-declarative-with-react-hooks/
 function useInterval(callback, delay) {
   const savedCallback = useRef();
@@ -50,6 +51,7 @@ test();
 export default function App() {
   const [tickCount, setTickCount] = useState(0);
   const [snakeBody, setSnakeBody] = useState([]);
+  const [gameOver, setGameOver] = useState(false);
   const [snakeSize, setSnakeSize] = useState(2);
   const [snakeHeadLocation, setSnakeHeadLocation] = useState([[15, 15], [14, 15], [13, 15]]);
   const [snakeDirection, setSnakeDirection] = useState("left");
@@ -79,7 +81,18 @@ export default function App() {
   }
   let jsx = divs();
 
-  function isGameValid() {}
+  function isGameValid() {
+    const headLatest = snakeHeadLocation[snakeHeadLocation.length - 1];
+
+    if(
+      headLatest[0] > BOARD.x // head right of board
+      || headLatest[0] < 0 // head left of board
+      || headLatest[1] > BOARD.y // head above board
+      || headLatest[1] < 0 // head below board
+    ) {
+      setGameOver(true);
+    }
+  }
   let stopTick = false;
   useEffect(() => {
     function onChangeDirection(event) {
@@ -114,10 +127,11 @@ export default function App() {
       window.removeEventListener("keydown", onChangeDirection, false);
   }, []);
   useInterval(() => {
-    // tick();
-    // return;
+    if(gameOver) {
+      return;
+    }
     setTickCount(tickCount + 1);
-    if (tickCount > 2) return;
+    // if (tickCount > 2) return;
 
     let newCordinates = [];
     const [x, y] = snakeHeadLocation[snakeHeadLocation.length - 1];
@@ -125,30 +139,30 @@ export default function App() {
     switch (snakeDirection) {
       case "left":
         newCordinates = [x - 1, y];
-        isGameValid();
         break;
       case "right":
         newCordinates = [x + 1, y];
-        isGameValid();
         break;
       case "down":
         newCordinates = [x, y + 1];
-        isGameValid();
         break;
       case "up":
         newCordinates = [x, y - 1];
-        isGameValid();
         break;
 
       default:
         break;
     }
-    // console.log(tickCount + "rendered");
 
-    // setSnakeLocation(newCordinates);
     setSnakeHeadLocation([...snakeHeadLocation, newCordinates]);
     setSnakeBody(calculateSnakeBody(snakeHeadLocation, snakeSize));
-    console.log(snakeBody)
+
+    isGameValid()
+    if(gameOver) {
+      return;
+    }
+
+    // console.log(snakeHeadLocation)
     jsx = divs();
   }, 500);
   return (
